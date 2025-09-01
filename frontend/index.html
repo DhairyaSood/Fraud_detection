@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fraud Detection Certificates</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { color: #333; }
+    form { margin-bottom: 20px; }
+    label { display: inline-block; width: 80px; }
+    input { padding: 5px; margin: 5px 0; }
+    button { padding: 6px 12px; margin-top: 10px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h1>Certificates</h1>
+
+  <!-- Form to add a new certificate -->
+  <form id="certForm">
+    <label for="name">Name:</label>
+    <input type="text" id="name" required />
+    <br />
+    <label for="course">Course:</label>
+    <input type="text" id="course" required />
+    <br />
+    <button type="submit">Add Certificate</button>
+  </form>
+
+  <button onclick="loadCertificates()">Load Certificates</button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Course</th>
+      </tr>
+    </thead>
+    <tbody id="certTable"></tbody>
+  </table>
+
+  <script>
+    const API_URL = "http://127.0.0.1:5000/certificates";
+
+    // Load all certificates
+    async function loadCertificates() {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+
+      const table = document.getElementById("certTable");
+      table.innerHTML = "";
+
+      data.forEach(cert => {
+        const row = `<tr><td>${cert.name}</td><td>${cert.course}</td></tr>`;
+        table.innerHTML += row;
+      });
+    }
+
+    // Handle form submission to add certificate
+    document.getElementById("certForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const course = document.getElementById("course").value;
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, course })
+      });
+
+      if (res.ok) {
+        alert("Certificate added!");
+        document.getElementById("certForm").reset();
+        loadCertificates(); // refresh table
+      } else {
+        alert("Error adding certificate");
+      }
+    });
+
+    // Auto-load certificates on page load
+    window.onload = loadCertificates;
+  </script>
+</body>
+</html>
